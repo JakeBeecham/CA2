@@ -5,12 +5,11 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    public int startingZombieCount = 10;
     public int zombieCount;
 
     void Awake()
     {
-        zombieCount = startingZombieCount;
+        zombieCount = GameObject.FindGameObjectsWithTag("Zombie").Length;
         //do not remove
         DontDestroyOnLoad(this);
     }
@@ -20,7 +19,7 @@ public class GameManager : MonoBehaviour
 
     }
 
-    void RecordZombieDeath()
+    public void RecordZombieDeath()
     {
         zombieCount--;
 

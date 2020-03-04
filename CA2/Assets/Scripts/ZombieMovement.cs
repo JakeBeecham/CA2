@@ -9,12 +9,11 @@ public class ZombieMovement : MonoBehaviour
     public float movementSpeed = 100;
     public float trackingRange = 5;
 
-    float h, v;
     Rigidbody2D body;
 
     void Start()
     {
-        //player = gameObject.CompareTag("Player");
+        player = GameObject.FindGameObjectWithTag("Player");
         body = GetComponent<Rigidbody2D>();
     }
 
@@ -27,7 +26,7 @@ public class ZombieMovement : MonoBehaviour
 
         if(Vector3.Distance(transform.position, player.transform.position) <= trackingRange)
         {
-            body.velocity = transform.up * new Vector2(h, v) * movementSpeed * Time.deltaTime;
+            body.velocity = transform.up * movementSpeed * Time.deltaTime;
         }
     }
 }
