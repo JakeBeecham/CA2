@@ -9,15 +9,17 @@ public class PlayerControlSwitcher : MonoBehaviour
 
     GameObject currentVehicle;
     PlayerOnFootMovement playerMovement;
+    PlayerAttack playerAttack;
 
-	void Start ()
+    void Start()
     {
         playerMovement = GetComponent<PlayerOnFootMovement>();
-	}
-	
+        playerAttack = GetComponent<PlayerAttack>();
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.gameObject.CompareTag("EnterTrigger") && !isInVehicle)
+        if (collision.gameObject.CompareTag("EnterTrigger") && !isInVehicle)
         {
             canEnterVehicle = true;
             currentVehicle = collision.transform.parent.gameObject;
@@ -30,24 +32,25 @@ public class PlayerControlSwitcher : MonoBehaviour
         {
             canEnterVehicle = false;
             currentVehicle = null;
+            isInVehicle = false;
         }
     }
 
     private void Update()
     {
-        if(canEnterVehicle && !isInVehicle)
+        if (canEnterVehicle && !isInVehicle)
         {
-            if(Input.GetKeyDown(KeyCode.E))
-                EnterVehicle();
+            if (Input.GetKeyDown(KeyCode.E))
+                EnterCar();
         }
-        else if(isInVehicle)
+        else if (isInVehicle)
         {
-            if(Input.GetKeyDown(KeyCode.E))
-                ExitVehicle();
+            if (Input.GetKeyDown(KeyCode.E))
+                ExitCar();
         }
     }
 
-    void EnterVehicle()
+    void EnterCar()
     {
         //Update Player
         playerMovement.enabled = false;
@@ -58,22 +61,37 @@ public class PlayerControlSwitcher : MonoBehaviour
         playerMovement.gameObject.transform.position = currentVehicle.transform.position;
         playerMovement.gameObject.transform.parent = currentVehicle.transform;
 
+        if (playerAttack.activeWeapon)
+            playerAttack.activeWeapon.gameObject.SetActive(false);
+
+        playerAttack.enabled = false;
+
         //Update Vehicle
         currentVehicle.GetComponent<PlayerVehicleMovement>().enabled = true;
+        currentVehicle.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Dynamic;
+
         isInVehicle = true;
     }
 
-    void ExitVehicle()
+    void ExitCar()
     {
         //Update Player
         playerMovement.enabled = true;
         playerMovement.gameObject.GetComponent<Collider2D>().enabled = true;
         playerMovement.gameObject.GetComponent<SpriteRenderer>().enabled = true;
+        playerMovement.gameObject.GetComponent<Rigidbody2D>().isKinematic = false;
 
         playerMovement.gameObject.transform.parent = null;
 
+        if (playerAttack.activeWeapon)
+            playerAttack.activeWeapon.gameObject.SetActive(true);
+
+        playerAttack.enabled = true;
+
         //Update Vehicle
         currentVehicle.GetComponent<PlayerVehicleMovement>().enabled = false;
-        isInVehicle = false;
+        currentVehicle.GetComponent<Rigidbody2D>().bodyType = RigidbodyType2D.Static;
+
+        canEnterVehicle = false;
     }
 }

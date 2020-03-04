@@ -7,27 +7,34 @@ public class PlayerAttack : MonoBehaviour
     public Weapon activeWeapon;
     public Transform AttachPoint;
 
+    bool canPickUpWeapon;
+    Weapon collidingWeapon;
+
     void Start()
     {
     }
 
     private void PickUpWeapon()
     {
-        activeWeapon = Instantiate(activeWeapon, transform);
-        activeWeapon.transform.position = AttachPoint.position;
-    }
+        if (collidingWeapon)
+        {
+            if (activeWeapon)
+                Destroy(activeWeapon.gameObject);
 
-    void DropWeapon()
-    {
+            activeWeapon = Instantiate(collidingWeapon, transform);
+            activeWeapon.transform.position = AttachPoint.position;
 
+            Destroy(collidingWeapon.gameObject);
+            collidingWeapon = null;
+        }
     }
 
     void Update()
     {
         //if activeWeapon is not null (has teh weapon prefab been cloned)
-        if(activeWeapon)
+        if (activeWeapon)
         {
-            if(activeWeapon.IsAutomatic)
+            if (activeWeapon.IsAutomatic)
             {
                 if (Input.GetButton("Fire1"))//left mouse button and right controller trigger
                 {
@@ -37,7 +44,7 @@ public class PlayerAttack : MonoBehaviour
             }
             else
             {
-                if(Input.GetButtonDown("Fire1"))//left mouse button and right controller trigger
+                if (Input.GetButtonDown("Fire1"))//left mouse button and right controller trigger
                 {
                     if (activeWeapon.HasAmmo())
                         activeWeapon.Fire(activeWeapon.Spawn.position);
@@ -45,20 +52,20 @@ public class PlayerAttack : MonoBehaviour
             }
         }
 
-        if(Input.GetKeyDown(KeyCode.Escape))
-        {
-            Application.Quit();
-        }
+        if (canPickUpWeapon)
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                PickUpWeapon();
+            }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if(collision.gameObject.CompareTag("Weapon"))
         {
-            activeWeapon = collision.GetComponent<Weapon>();
-            PickUpWeapon();
+            collidingWeapon = collision.GetComponent<Weapon>();
+            canPickUpWeapon = true;
 
-            Destroy(collision.gameObject);
         }
     }
 }
